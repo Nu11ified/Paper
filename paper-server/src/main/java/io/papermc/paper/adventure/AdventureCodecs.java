@@ -100,9 +100,13 @@ public final class AdventureCodecs {
                     LOGGER.warning("Invalid formatting code " + s + " used as color in scoreboard team or similar. Using white as fallback. Please remove formatting codes from color fields.");
                     return DataResult.success(TextColor.color(0xFFFFFF)); // White as fallback
                 }
-            }
-            // Fall through to normal named color handling
+                // Handle valid § color codes
+            // Unknown § code, not a valid color
+            return DataResult.error(() -> "Cannot convert " + s + " to adventure NamedTextColor");
+        } else {
             final @Nullable NamedTextColor value = NamedTextColor.NAMES.value(s);
+            return value != null ? DataResult.success(value) : DataResult.error(() -> "Cannot convert " + s + " to adventure NamedTextColor");
+        }
             return value != null ? DataResult.success(value) : DataResult.error(() -> "Cannot convert " + s + " to adventure NamedTextColor");
         } else {
             final @Nullable NamedTextColor value = NamedTextColor.NAMES.value(s);

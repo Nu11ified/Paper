@@ -55,7 +55,7 @@ public class AdventureCodecsSanitizationTest {
         assertTrue(result.result().get().value() != 0xFFFFFF); // Should not be white
     }
     
-    @Test 
+    @Test
     public void testInvalidColorCodesStillFail() {
         // Test that truly invalid color codes still fail (not sanitized)
         DataResult<TextColor> result = AdventureCodecs.TEXT_COLOR_CODEC.parse(null, "§z");
