@@ -16,6 +16,7 @@ import java.util.function.BiConsumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.StreamSupport;
+import java.util.logging.Logger;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.inventory.Book;
 import net.kyori.adventure.key.Key;
@@ -74,6 +75,7 @@ import org.jetbrains.annotations.Nullable;
 import static java.util.Objects.requireNonNull;
 
 public final class PaperAdventure {
+    private static final Logger LOGGER = Logger.getLogger(PaperAdventure.class.getName());
     private static final Pattern LOCALIZATION_PATTERN = Pattern.compile("%(?:(\\d+)\\$)?s");
     public static final ComponentFlattener FLATTENER = ComponentFlattener.basic().toBuilder()
         .nestingLimit(30) // todo: should this be configurable? a system property or config value?
@@ -475,7 +477,9 @@ public final class PaperAdventure {
     public static @NotNull TextColor asAdventure(final ChatFormatting formatting) {
         final Integer color = formatting.getColor();
         if (color == null) {
-            throw new IllegalArgumentException("Formatting was not a valid color: " + formatting);
+            // Log warning about invalid formatting code being used as color and return white as fallback
+            LOGGER.warning("Invalid formatting code " + formatting + " used as color in scoreboard team or similar. Using white as fallback. Please remove formatting codes from color fields.");
+            return TextColor.color(0xFFFFFF); // White as fallback
         }
         return TextColor.color(color);
     }

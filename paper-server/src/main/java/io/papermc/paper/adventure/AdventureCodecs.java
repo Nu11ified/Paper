@@ -17,6 +17,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.logging.Logger;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.nbt.api.BinaryTagHolder;
 import net.kyori.adventure.text.BlockNBTComponent;
@@ -82,6 +83,8 @@ public final class AdventureCodecs {
     public static final Codec<Component> COMPONENT_CODEC = recursive("adventure Component", AdventureCodecs::createCodec);
     public static final StreamCodec<RegistryFriendlyByteBuf, Component> STREAM_COMPONENT_CODEC = ByteBufCodecs.fromCodecWithRegistriesTrusted(COMPONENT_CODEC);
 
+    private static final Logger LOGGER = Logger.getLogger(AdventureCodecs.class.getName());
+
     static final Codec<ShadowColor> SHADOW_COLOR_CODEC = ExtraCodecs.ARGB_COLOR_CODEC.xmap(ShadowColor::shadowColor, ShadowColor::value);
 
     static final Codec<TextColor> TEXT_COLOR_CODEC = Codec.STRING.comapFlatMap(s -> {
@@ -92,9 +95,10 @@ public final class AdventureCodecs {
             // Check if this is a formatting code (not a color)
             if (s.length() == 2) {
                 char code = s.charAt(1);
-                // These are formatting codes, not colors
+                // These are formatting codes, not colors - sanitize by returning white
                 if (code == 'k' || code == 'l' || code == 'm' || code == 'n' || code == 'o' || code == 'r') {
-                    return DataResult.error(() -> "Formatting was not a valid color: " + s);
+                    LOGGER.warning("Invalid formatting code " + s + " used as color in scoreboard team or similar. Using white as fallback. Please remove formatting codes from color fields.");
+                    return DataResult.success(TextColor.color(0xFFFFFF)); // White as fallback
                 }
             }
             // Fall through to normal named color handling
