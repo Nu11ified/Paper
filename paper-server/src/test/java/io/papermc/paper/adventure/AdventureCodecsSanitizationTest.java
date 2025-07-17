@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @Normal
 public class AdventureCodecsSanitizationTest {
@@ -52,5 +53,18 @@ public class AdventureCodecsSanitizationTest {
         assertTrue(result.result().isPresent());
         // Note: exact color values may vary, just checking that it succeeds
         assertTrue(result.result().get().value() != 0xFFFFFF); // Should not be white
+    }
+    
+    @Test 
+    public void testInvalidColorCodesStillFail() {
+        // Test that truly invalid color codes still fail (not sanitized)
+        DataResult<TextColor> result = AdventureCodecs.TEXT_COLOR_CODEC.parse(null, "§z");
+        assertFalse(result.result().isPresent());
+        
+        result = AdventureCodecs.TEXT_COLOR_CODEC.parse(null, "invalid");
+        assertFalse(result.result().isPresent());
+        
+        result = AdventureCodecs.TEXT_COLOR_CODEC.parse(null, "#invalid");
+        assertFalse(result.result().isPresent());
     }
 }
